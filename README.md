@@ -7,7 +7,9 @@ os registros e oferece a funcionalidade de descriptografar esses dados.
 ## Funcionalidades
 
 1 - Registro de Entrada e Saída: Registra a hora de entrada e saída do usuário.
+
 2 - Interface amigável: para interação com o usuário.
+
 3 - Indicador de Status: Um pequeno quadrado que muda de cor (vermelho para verde) para indicar o status de entrada/saída.
 
 ## Requisitos
@@ -15,8 +17,9 @@ os registros e oferece a funcionalidade de descriptografar esses dados.
 - Python 3.7+
 - Bibliotecas Python: Pillow, cryptography, tkinter
 
-Instalação
+## Instalação
 
 Clone este repositório:
-
-git clone https://github.com/SeuUsuario/RegistroDeTrabalhoPIXFORCE.git
+```properties
+  git clone https://github.com/SeuUsuario/RegistroDeTrabalhoPIXFORCE.git
+```
