@@ -2,17 +2,32 @@ import os
 import json
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
 from PIL import Image, ImageTk
 from datetime import datetime, timedelta
+from cryptography.fernet import Fernet
 
-# Verifica e cria o diretório 'db' se não existir
-if not os.path.exists('db'):
-    os.makedirs('db')
+# Função para gerar e salvar a chave de criptografia
+def generate_key():
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
+        key_file.write(key)
+
+# Função para carregar a chave de criptografia
+def load_key():
+    return open("secret.key", "rb").read()
+
+# Gera a chave uma vez
+if not os.path.exists("secret.key"):
+    generate_key()
+
+# Carrega a chave
+key = load_key()
+cipher = Fernet(key)
 
 # Função para obter o nome do arquivo JSON com base na data atual
 def get_json_filename():
     now = datetime.now()
-    # Considera que o período é de 26 de um mês até 25 do próximo mês
     if now.day < 26:
         month = now.month
         year = now.year
@@ -25,9 +40,20 @@ def get_json_filename():
 def load_records():
     filename = get_json_filename()
     filepath = os.path.join('db', filename)
+    
+    # Verifica e cria o diretório 'db' se não existir
+    if not os.path.exists('db'):
+        os.makedirs('db')
+    
     if os.path.exists(filepath):
-        with open(filepath, 'r') as file:
-            return json.load(file)
+        with open(filepath, 'rb') as file:
+            encrypted_data = file.read()
+        try:
+            decrypted_data = cipher.decrypt(encrypted_data)
+            return json.loads(decrypted_data.decode())
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao descriptografar o arquivo: {e}")
+            return []
     else:
         return []
 
@@ -35,8 +61,15 @@ def load_records():
 def save_records(records):
     filename = get_json_filename()
     filepath = os.path.join('db', filename)
-    with open(filepath, 'w') as file:
-        json.dump(records, file, indent=4)
+    
+    # Verifica e cria o diretório 'db' se não existir
+    if not os.path.exists('db'):
+        os.makedirs('db')
+    
+    json_data = json.dumps(records, indent=4).encode()
+    encrypted_data = cipher.encrypt(json_data)
+    with open(filepath, 'wb') as file:
+        file.write(encrypted_data)
 
 # Função para calcular a diferença entre duas datas
 def calculate_hours(start, end):
